@@ -21,12 +21,8 @@ def check_venv_exists(project_path: Path) -> Union[m.VenvStatus, m.PyrightError]
 
     venv_path = project_path / ".venv"
     exists = venv_path.exists() and venv_path.is_dir()
-    
-    return m.VenvStatus(
-        exists=exists,
-        path=venv_path,
-        activated=False
-    )
+
+    return m.VenvStatus(exists=exists, path=venv_path, activated=False)
 
 
 def install_pyright(venv_path: Path) -> Union[bool, m.PyrightError]:
@@ -45,14 +41,12 @@ def install_pyright(venv_path: Path) -> Union[bool, m.PyrightError]:
             cwd=venv_path.parent,
             capture_output=True,
             text=True,
-            timeout=120
+            timeout=120,
         )
-        
+
         if result.returncode != 0:
-            return m.PyrightError(
-                message=f"Failed to install pyright: {result.stderr}"
-            )
-        
+            return m.PyrightError(message=f"Failed to install pyright: {result.stderr}")
+
         return True
     except subprocess.TimeoutExpired:
         return m.PyrightError(message="Timeout installing pyright")
@@ -76,9 +70,9 @@ def check_pyright_installed(project_path: Path) -> Union[bool, m.PyrightError]:
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
-        
+
         return result.returncode == 0
     except subprocess.TimeoutExpired:
         return m.PyrightError(message="Timeout checking pyright installation")
@@ -86,7 +80,9 @@ def check_pyright_installed(project_path: Path) -> Union[bool, m.PyrightError]:
         return m.PyrightError(message=f"Error checking pyright: {str(e)}")
 
 
-def run_pyright_on_directory(project_path: Path, target_dir: Path) -> Union[m.PyrightResult, m.PyrightError]:
+def run_pyright_on_directory(
+    project_path: Path, target_dir: Path
+) -> Union[m.PyrightResult, m.PyrightError]:
     """
     Run pyright on the specified directory within the project.
 
@@ -107,20 +103,20 @@ def run_pyright_on_directory(project_path: Path, target_dir: Path) -> Union[m.Py
 
     try:
         env = {"PYTHONPATH": str(project_path)}
-        
+
         result = subprocess.run(
             ["uv", "run", "pyright", str(target_dir)],
             cwd=project_path,
             capture_output=True,
             text=True,
             timeout=300,
-            env={**subprocess.os.environ, **env}
+            env={**subprocess.os.environ, **env},
         )
-        
+
         return m.PyrightResult(
             output=result.stdout + result.stderr,
             exit_code=result.returncode,
-            directory=target_dir
+            directory=target_dir,
         )
     except subprocess.TimeoutExpired:
         return m.PyrightError(message="Timeout running pyright")
@@ -128,7 +124,9 @@ def run_pyright_on_directory(project_path: Path, target_dir: Path) -> Union[m.Py
         return m.PyrightError(message=f"Error running pyright: {str(e)}")
 
 
-def setup_and_run_pyright(project_path: Path, target_dir: Path) -> Union[m.PyrightResult, m.PyrightError]:
+def setup_and_run_pyright(
+    project_path: Path, target_dir: Path
+) -> Union[m.PyrightResult, m.PyrightError]:
     """
     Complete setup and execution of pyright on a directory.
 
@@ -169,3 +167,4 @@ def setup_and_run_pyright(project_path: Path, target_dir: Path) -> Union[m.Pyrig
             assert False, f"Unreachable: {unreachable}"
 
     return run_pyright_on_directory(project_path=project_path, target_dir=target_dir)
+

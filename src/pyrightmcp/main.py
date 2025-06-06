@@ -88,7 +88,6 @@ def serve(
             additional_dir = typer.prompt("Enter another project directory")
             allowed_dirs.append(additional_dir)
 
-    typer.echo(f"Starting pyright MCP server with allowed directories: {allowed_dirs}")
     global allowed_paths
     allowed_paths = [Path(d).resolve() for d in allowed_dirs]
 
