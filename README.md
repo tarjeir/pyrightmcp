@@ -36,10 +36,17 @@ Then install the project in an isolated environment:
 pipx install .
 ```
 
-To run the server with pipx:
+After installation, you can run the server using the installed executable.  
+By default, pipx installs executables to `~/.local/pipx/venvs/pyrightmcp/bin/pyrightmcp` (on Unix-like systems):
 
 ```bash
-pipx run pyrightmcp
+~/.local/pipx/venvs/pyrightmcp/bin/pyrightmcp
+```
+
+Or, if `~/.local/bin` is on your `PATH`, you can simply run:
+
+```bash
+pyrightmcp
 ```
 
 ### Using pipx with a global classpath
