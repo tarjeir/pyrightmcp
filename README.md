@@ -130,10 +130,8 @@ Or, if you use the JSON config format (`~/.mcp/config.json`):
 {
   "mcpServers": {
     "pyright": {
-      "command": "pipx",
+      "command": "pyrightmcp",
       "args": [
-        "run",
-        "pyrightmcp",
         "serve",
         "--allowed-dir",
         "/usr/local/lib/python3.12/site-packages"
@@ -143,7 +141,7 @@ Or, if you use the JSON config format (`~/.mcp/config.json`):
 }
 ```
 
-> **Note:** This example configures MCP to use `pipx` to run the server, and sets `--allowed-dir` to your global site-packages directory.  
+> **Note:** This example configures MCP to run the `pyrightmcp` executable directly (as installed by pipx or globally), and sets `--allowed-dir` to your global site-packages directory.  
 > You can also use any directory on your global `PYTHONPATH` as the allowed directory.
 
 You can then use the `pyright` tools from within your Claude chat session.
