@@ -41,6 +41,26 @@ To run the server with pipx:
 pipx run pyrightmcp serve
 ```
 
+### Using pipx with a global classpath
+
+If you want to run the server with `pipx` and analyze code using your global Python environment (not a project `.venv`), you can do so by pointing `--allowed-dir` to your global site-packages or a directory on your global `PYTHONPATH`.  
+This is useful for system-wide or user-wide codebases.
+
+```bash
+pipx run pyrightmcp serve --allowed-dir /usr/local/lib/python3.12/site-packages
+```
+
+Or, to analyze code in a directory that is on your global `PYTHONPATH`:
+
+```bash
+pipx run pyrightmcp serve --allowed-dir /path/to/your/global/code
+```
+
+> **Note:** When using a global classpath, ensure that `pyright` is available in your global environment, or install it globally with:
+> ```bash
+> pipx inject pyrightmcp pyright
+> ```
+
 ## Usage
 
 ### Interactive Mode
