@@ -42,6 +42,16 @@ To run the server with pipx:
 pipx run pyrightmcp serve
 ```
 
+Or, you can run the server directly as a command-line argument:
+
+```bash
+pyrightmcp serve
+```
+or, if installed as a module:
+```bash
+python -m pyrightmcp serve
+```
+
 ### Using pipx with a global classpath
 
 If you want to run the server with `pipx` and analyze code using your global Python environment (not a project `.venv`), you can do so by pointing `--allowed-dir` to your global site-packages or a directory on your global `PYTHONPATH`.  
