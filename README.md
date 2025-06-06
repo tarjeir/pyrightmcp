@@ -39,7 +39,7 @@ pipx install .
 To run the server with pipx:
 
 ```bash
-pipx run pyrightmcp serve
+pipx run pyrightmcp
 ```
 
 ### Using pipx with a global classpath
@@ -48,13 +48,13 @@ If you want to run the server with `pipx` and analyze code using your global Pyt
 This is useful for system-wide or user-wide codebases.
 
 ```bash
-pipx run pyrightmcp serve --allowed-dir /usr/local/lib/python3.12/site-packages
+pipx run pyrightmcp --allowed-dir /usr/local/lib/python3.12/site-packages
 ```
 
 Or, to analyze code in a directory that is on your global `PYTHONPATH`:
 
 ```bash
-pipx run pyrightmcp serve --allowed-dir /path/to/your/global/code
+pipx run pyrightmcp --allowed-dir /path/to/your/global/code
 ```
 
 > **Note:** When using a global classpath, ensure that `pyright` is available in your global environment, or install it globally with:
@@ -67,7 +67,7 @@ pipx run pyrightmcp serve --allowed-dir /path/to/your/global/code
 ### Interactive Mode
 
 ```bash
-uv run pyrightmcp serve
+uv run pyrightmcp
 ```
 
 This will prompt you to enter allowed project directories.
@@ -75,7 +75,7 @@ This will prompt you to enter allowed project directories.
 ### Command Line
 
 ```bash
-uv run pyrightmcp serve --allowed-dir /path/to/your/python/project1 --allowed-dir /path/to/your/python/project2
+uv run pyrightmcp --allowed-dir /path/to/your/python/project1 --allowed-dir /path/to/your/python/project2
 ```
 > **Note:** The path you provide to `--allowed-dir` should be the root directory of your Python project.
 
@@ -83,13 +83,13 @@ uv run pyrightmcp serve --allowed-dir /path/to/your/python/project1 --allowed-di
 
 ```bash
 # STDIO (default)
-uv run pyrightmcp serve --transport stdio
+uv run pyrightmcp --transport stdio
 
 # SSE
-uv run pyrightmcp serve --transport sse --port 8000
+uv run pyrightmcp --transport sse --port 8000
 
 # HTTP
-uv run pyrightmcp serve --transport streamable-http --port 8000
+uv run pyrightmcp --transport streamable-http --port 8000
 ```
 
 ## Available Tools
@@ -106,7 +106,7 @@ uv run pyrightmcp serve --transport streamable-http --port 8000
 # Connect to the server and run pyright
 from fastmcp import Client
 
-async with Client("uv run pyrightmcp serve") as client:
+async with Client("uv run pyrightmcp") as client:
     result = await client.call_tool("run_pyright", {
         "project_dir": "/path/to/my/project",
         "target_dir": "src"
@@ -121,7 +121,7 @@ To use this server with [MCP Claude](https://github.com/paulgb/mcp-claude), add 
 ```yaml
 servers:
   - name: pyright
-    command: uv run pyrightmcp serve --allowed-dir /path/to/my/project
+    command: uv run pyrightmcp --allowed-dir /path/to/my/project
     transport: stdio
     tools:
       - run_pyright
