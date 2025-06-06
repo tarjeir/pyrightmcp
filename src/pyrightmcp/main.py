@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Union
 
 import typer
 from fastmcp import FastMCP, Context
@@ -17,14 +16,26 @@ allowed_paths: list | None = None
 @mcp.tool
 async def run_pyright(project_dir: str, target_dir: str, ctx: Context) -> str:
     """
-    Run pyright language server on a specific directory within a project.
+    Run pyright type checker and static analysis on a specific directory within a Python project.
+    
+    This tool performs comprehensive Python static analysis including:
+    - Type checking and type inference validation
+    - Detection of unused variables, imports, and functions (with --warnings flag)
+    - Identification of unreachable code
+    - Missing import detection
+    - Configuration compliance checking
+    
+    The tool automatically handles project setup:
+    - Checks for virtual environment existence
+    - Installs pyright if not present using uv
+    - Runs analysis with proper PYTHONPATH configuration
 
     Args:
-        project_dir (str): The root project directory path.
-        target_dir (str): The target directory to analyze (relative to project_dir).
+        project_dir (str): The absolute path to the root project directory containing pyproject.toml, setup.py, or Python package structure.
+        target_dir (str): The target directory path to analyze, relative to project_dir (use "." for entire project).
 
     Returns:
-        str: The pyright analysis output.
+        str: Complete pyright analysis output including errors, warnings, and summary statistics.
     """
     project_path = Path(project_dir).resolve()
     target_path = Path(project_dir) / target_dir
@@ -58,9 +69,16 @@ async def run_pyright(project_dir: str, target_dir: str, ctx: Context) -> str:
 async def list_allowed_directories() -> list[str]:
     """
     List the directories where pyright can be run.
+    
+    This tool returns all project directories that have been configured as allowed
+    for pyright analysis. These directories are set when starting the MCP server
+    using the --allowed-dir flag or through interactive prompts.
+    
+    Security note: Only projects within these allowed directories can be analyzed
+    to prevent unauthorized access to filesystem locations.
 
     Returns:
-        list[str]: List of allowed project directories.
+        list[str]: List of absolute paths to allowed project directories.
     """
 
     return [str(p) for p in allowed_paths] if allowed_paths is not None else []

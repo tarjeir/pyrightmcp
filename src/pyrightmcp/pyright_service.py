@@ -1,6 +1,6 @@
+import json
 import os
 import subprocess
-import sys
 from pathlib import Path
 from typing import Union
 
@@ -81,6 +81,34 @@ def check_pyright_installed(project_path: Path) -> Union[bool, m.PyrightError]:
         return m.PyrightError(message=f"Error checking pyright: {str(e)}")
 
 
+def ensure_pyright_config(project_path: Path) -> Union[bool, m.PyrightError]:
+    """
+    Ensure pyrightconfig.json exists with reportUnusedImport set to warning.
+
+    Args:
+        project_path (Path): The project root directory.
+
+    Returns:
+        Union[bool, PyrightError]: True if config exists/created, or error.
+    """
+    config_path = project_path / "pyrightconfig.json"
+    
+    if config_path.exists():
+        return True
+    
+    try:
+        config = {
+            "reportUnusedImport": "warning"
+        }
+        
+        with open(config_path, "w") as f:
+            json.dump(config, f, indent=2)
+        
+        return True
+    except Exception as e:
+        return m.PyrightError(message=f"Error creating pyrightconfig.json: {str(e)}")
+
+
 def run_pyright_on_directory(
     project_path: Path, target_dir: Path
 ) -> Union[m.PyrightResult, m.PyrightError]:
@@ -101,6 +129,10 @@ def run_pyright_on_directory(
         return m.PyrightError(
             message=f"Target directory {target_dir} is not within project {project_path}"
         )
+
+    config_result = ensure_pyright_config(project_path)
+    if isinstance(config_result, m.PyrightError):
+        return config_result
 
     try:
         env = {"PYTHONPATH": str(project_path)}
