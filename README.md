@@ -54,8 +54,9 @@ This will prompt you to enter allowed project directories.
 ### Command Line
 
 ```bash
-uv run pyrightmcp serve --allowed-dir /path/to/project1 --allowed-dir /path/to/project2
+uv run pyrightmcp serve --allowed-dir /path/to/your/python/project1 --allowed-dir /path/to/your/python/project2
 ```
+> **Note:** The path you provide to `--allowed-dir` should be the root directory of your Python project.
 
 ### Different Transports
 
