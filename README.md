@@ -107,17 +107,18 @@ Or, if you use the JSON config format (`~/.mcp/config.json`):
 
 ```json
 {
-  "servers": [
-    {
-      "name": "pyright",
-      "command": "uv run pyrightmcp serve --allowed-dir /path/to/my/project",
-      "transport": "stdio",
-      "tools": [
-        "run_pyright",
-        "list_allowed_directories"
+  "mcpServers": {
+    "pyright": {
+      "command": "uv",
+      "args": [
+        "run",
+        "pyrightmcp",
+        "serve",
+        "--allowed-dir",
+        "/path/to/my/project"
       ]
     }
-  ]
+  }
 }
 ```
 
