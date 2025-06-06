@@ -115,7 +115,7 @@ Or, if you use the JSON config format (`~/.mcp/config.json`):
         "pyrightmcp",
         "serve",
         "--allowed-dir",
-        "/path/to/my/project"
+        "/path/to/your/python/project"  // <-- Set this to your project root directory
       ]
     }
   }
