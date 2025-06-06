@@ -103,4 +103,22 @@ servers:
       - list_allowed_directories
 ```
 
+Or, if you use the JSON config format (`~/.mcp/config.json`):
+
+```json
+{
+  "servers": [
+    {
+      "name": "pyright",
+      "command": "uv run pyrightmcp serve --allowed-dir /path/to/my/project",
+      "transport": "stdio",
+      "tools": [
+        "run_pyright",
+        "list_allowed_directories"
+      ]
+    }
+  ]
+}
+```
+
 You can then use the `pyright` tools from within your Claude chat session.
