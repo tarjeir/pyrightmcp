@@ -1,0 +1,29 @@
+[project]
+name = "pyrightmcp"
+version = "0.1.0"
+description = "FastMCP server for running pyright language server"
+authors = [{ name = "Assistant", email = "assistant@example.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=2.0.0",
+    "typer>=0.12.0",
+    "rich>=13.0.0"
+]
+
+[project.scripts]
+pyrightmcp = "pyrightmcp.main:main"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
