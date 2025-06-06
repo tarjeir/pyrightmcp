@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -105,12 +106,12 @@ def run_pyright_on_directory(
         env = {"PYTHONPATH": str(project_path)}
 
         result = subprocess.run(
-            ["uv", "run", "pyright", str(target_dir)],
+            ["uv", "run", "pyright", "--warnings", str(target_dir)],
             cwd=project_path,
             capture_output=True,
             text=True,
             timeout=300,
-            env={**subprocess.os.environ, **env},
+            env={**os.environ, **env},
         )
 
         return m.PyrightResult(
