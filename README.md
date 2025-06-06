@@ -7,6 +7,7 @@ A FastMCP server that provides pyright language server functionality for Python 
 - Automatically checks for and creates virtual environments
 - Installs pyright if not present
 - Runs pyright analysis on specified directories
+- Automatically creates and manages `pyrightconfig.json` with `reportUnusedImport` set to warning
 - Configurable allowed project directories for security
 - Multiple transport options (stdio, SSE, HTTP)
 
@@ -94,6 +95,9 @@ uv run pyrightmcp serve --transport streamable-http --port 8000
 ## Available Tools
 
 - `run_pyright`: Run pyright analysis on a specific directory within a project
+  - Automatically creates `pyrightconfig.json` if it doesn't exist
+  - Configures unused import detection as warnings
+  - Provides comprehensive type checking and static analysis
 - `list_allowed_directories`: List the directories where pyright can be run
 
 ## Example
