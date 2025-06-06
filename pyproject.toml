@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-pyrightmcp = "pyrightmcp.main:main"
+pyrightmcp = "pyrightmcp.main:app"
 
 [tool.black]
 line-length = 88

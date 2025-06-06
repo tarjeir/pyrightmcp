@@ -134,7 +134,7 @@ Or, if you use the JSON config format (`~/.mcp/config.json`):
       "args": [
         "serve",
         "--allowed-dir",
-        "/usr/local/lib/python3.12/site-packages"
+        "/path/to/project"
       ]
     }
   }
