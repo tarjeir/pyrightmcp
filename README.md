@@ -4,6 +4,7 @@ A FastMCP server that provides pyright language server functionality for Python 
 
 ## Features
 
+- Validates that `uv` is installed and project is properly set up
 - Automatically checks for and creates virtual environments
 - Installs pyright if not present
 - Runs pyright analysis on specified directories
@@ -102,6 +103,7 @@ uv run pyrightmcp --transport streamable-http --port 8000
 ## Available Tools
 
 - `run_pyright`: Run pyright analysis on a specific directory within a project
+  - Validates `uv` installation and proper project setup (pyproject.toml or setup.py)
   - Automatically creates `pyrightconfig.json` if it doesn't exist
   - Configures unused import detection as warnings
   - Provides comprehensive type checking and static analysis

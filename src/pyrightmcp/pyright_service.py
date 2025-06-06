@@ -7,6 +7,53 @@ from typing import Union
 from pyrightmcp import model as m
 
 
+def check_uv_installed() -> Union[bool, m.PyrightError]:
+    """
+    Check if uv is installed and available.
+
+    Returns:
+        Union[bool, PyrightError]: True if uv is available, or error.
+    """
+    try:
+        result = subprocess.run(
+            ["uv", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        return m.PyrightError(
+            message="uv is not installed. Please install uv (https://github.com/astral-sh/uv) to use this tool."
+        )
+    except subprocess.TimeoutExpired:
+        return m.PyrightError(message="Timeout checking uv installation")
+    except Exception as e:
+        return m.PyrightError(message=f"Error checking uv: {str(e)}")
+
+
+def check_project_setup(project_path: Path) -> Union[bool, m.PyrightError]:
+    """
+    Check if the project is properly set up with pyproject.toml or setup.py.
+
+    Args:
+        project_path (Path): The project directory to check.
+
+    Returns:
+        Union[bool, PyrightError]: True if project is set up, or error.
+    """
+    pyproject_toml = project_path / "pyproject.toml"
+    setup_py = project_path / "setup.py"
+    
+    if not (pyproject_toml.exists() or setup_py.exists()):
+        return m.PyrightError(
+            message=f"Project needs to be set up. No pyproject.toml or setup.py found in {project_path}. "
+            f"Please run 'uv init' or create a proper Python project structure."
+        )
+    
+    return True
+
+
 def check_venv_exists(project_path: Path) -> Union[m.VenvStatus, m.PyrightError]:
     """
     Check if .venv directory exists in the project path.
@@ -170,6 +217,16 @@ def setup_and_run_pyright(
     Returns:
         Union[PyrightResult, PyrightError]: The pyright result or error.
     """
+    # Check if uv is installed
+    uv_check = check_uv_installed()
+    if isinstance(uv_check, m.PyrightError):
+        return uv_check
+
+    # Check if project is properly set up
+    project_setup = check_project_setup(project_path)
+    if isinstance(project_setup, m.PyrightError):
+        return project_setup
+
     venv_status = check_venv_exists(project_path=project_path)
     match venv_status:
         case m.PyrightError() as error:
