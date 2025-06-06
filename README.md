@@ -88,3 +88,19 @@ async with Client("uv run pyrightmcp serve") as client:
     })
     print(result.text)
 ```
+
+## Example MCP Claude Config
+
+To use this server with [MCP Claude](https://github.com/paulgb/mcp-claude), add a config block like the following to your `~/.mcp/config.yaml`:
+
+```yaml
+servers:
+  - name: pyright
+    command: uv run pyrightmcp serve --allowed-dir /path/to/my/project
+    transport: stdio
+    tools:
+      - run_pyright
+      - list_allowed_directories
+```
+
+You can then use the `pyright` tools from within your Claude chat session.
