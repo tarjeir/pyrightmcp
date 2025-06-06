@@ -12,8 +12,33 @@ A FastMCP server that provides pyright language server functionality for Python 
 
 ## Installation
 
+You can install and run this project using either [uv](https://github.com/astral-sh/uv) or [pipx](https://pypa.github.io/pipx/).
+
+### Using uv
+
 ```bash
 uv sync
+```
+
+### Using pipx
+
+First, ensure you have [pipx](https://pypa.github.io/pipx/) installed:
+
+```bash
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+```
+
+Then install the project in an isolated environment:
+
+```bash
+pipx install .
+```
+
+To run the server with pipx:
+
+```bash
+pipx run pyrightmcp serve
 ```
 
 ## Usage
