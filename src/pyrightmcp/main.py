@@ -1,10 +1,34 @@
 from pathlib import Path
+import logging
+import os
 
 import typer
 from fastmcp import FastMCP, Context
 
 from pyrightmcp import model as m
 from pyrightmcp.pyright_service import setup_and_run_pyright
+
+try:
+    from pyrightmcp.lsp_client import LSPClient
+    LSP_AVAILABLE = True
+except ImportError:
+    LSP_AVAILABLE = False
+
+# Enable debug logging if environment variable is set
+log_level = os.getenv("PYRIGHTMCP_LOG_LEVEL", "INFO").upper()
+log_file = os.getenv("PYRIGHTMCP_LOG_FILE", "/tmp/pyrightmcp.log")
+
+# Configure logging with both file and console handlers
+logging.basicConfig(
+    level=getattr(logging, log_level, logging.INFO),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
+    ]
+)
+    
+logger = logging.getLogger(__name__)
 
 mcp = FastMCP("Pyright Language Server MCP")
 
@@ -82,6 +106,143 @@ async def list_allowed_directories() -> list[str]:
     """
 
     return [str(p) for p in allowed_paths] if allowed_paths is not None else []
+
+
+@mcp.tool
+async def organize_imports(project_dir: str, file_path: str, ctx: Context) -> str:
+    """
+    Organize imports in a Python file using pyright LSP code actions.
+    
+    This tool uses the Language Server Protocol to intelligently organize imports
+    in a Python file, including:
+    - Sorting imports alphabetically
+    - Grouping standard library, third-party, and local imports
+    - Removing unused imports
+    - Formatting import statements consistently
+    
+    Requires LSP integration to be available (install with: uv sync --extra lsp)
+    
+    Args:
+        project_dir (str): The absolute path to the root project directory.
+        file_path (str): The absolute path to the Python file to organize imports for.
+        
+    Returns:
+        str: Success message or error description.
+    """
+    if not LSP_AVAILABLE:
+        return "Error: LSP integration not available. Install with: uv sync --extra lsp"
+        
+    project_path = Path(project_dir).resolve()
+    target_file = Path(file_path).resolve()
+    
+    if allowed_paths is None:
+        return "The pyright mcp is not configured correctly"
+
+    if not any(
+        project_path == allowed or project_path.is_relative_to(allowed)
+        for allowed in allowed_paths
+    ):
+        return f"Error: Project directory {project_path} is not in allowed directories"
+        
+    if not target_file.exists():
+        return f"Error: File {target_file} does not exist"
+        
+    if not target_file.is_relative_to(project_path):
+        return f"Error: File {target_file} is not within project {project_path}"
+
+    await ctx.info(f"Organizing imports in {target_file}...")
+    
+    lsp_client = LSPClient(project_path)
+    try:
+        if not await lsp_client.start():
+            return "Error: Failed to start LSP server"
+            
+        result = await lsp_client.organize_imports(target_file)
+        
+        match result:
+            case m.PyrightError(message=error_msg):
+                await ctx.error(f"Organize imports failed: {error_msg}")
+                return f"Error: {error_msg}"
+            case m.PyrightResult() as pyright_result:
+                await ctx.info("Imports organized successfully")
+                return pyright_result.output
+                
+    finally:
+        await lsp_client.stop()
+
+
+@mcp.tool
+async def get_code_actions(project_dir: str, file_path: str, line: int, column: int, ctx: Context) -> str:
+    """
+    Get available code actions (quick fixes) for a specific position in a Python file.
+    
+    This tool uses the Language Server Protocol to retrieve code actions available
+    at a specific line and column, including:
+    - Quick fixes for type errors
+    - Refactoring suggestions
+    - Import suggestions
+    - Code style improvements
+    
+    Requires LSP integration to be available (install with: uv sync --extra lsp)
+    
+    Args:
+        project_dir (str): The absolute path to the root project directory.
+        file_path (str): The absolute path to the Python file.
+        line (int): Line number (0-based).
+        column (int): Column number (0-based).
+        
+    Returns:
+        str: JSON list of available code actions or error message.
+    """
+    if not LSP_AVAILABLE:
+        return "Error: LSP integration not available. Install with: uv sync --extra lsp"
+        
+    project_path = Path(project_dir).resolve()
+    target_file = Path(file_path).resolve()
+    
+    if allowed_paths is None:
+        return "The pyright mcp is not configured correctly"
+
+    if not any(
+        project_path == allowed or project_path.is_relative_to(allowed)
+        for allowed in allowed_paths
+    ):
+        return f"Error: Project directory {project_path} is not in allowed directories"
+        
+    if not target_file.exists():
+        return f"Error: File {target_file} does not exist"
+        
+    if not target_file.is_relative_to(project_path):
+        return f"Error: File {target_file} is not within project {project_path}"
+
+    await ctx.info(f"Getting code actions for {target_file}:{line}:{column}...")
+    
+    lsp_client = LSPClient(project_path)
+    try:
+        if not await lsp_client.start():
+            return "Error: Failed to start LSP server"
+            
+        await lsp_client.open_document(target_file)
+        actions = await lsp_client.get_code_actions(target_file, line, column, line, column)
+        
+        if not actions:
+            return "No code actions available at this position"
+            
+        # Format actions for display
+        action_descriptions = []
+        for i, action in enumerate(actions):
+            title = action.get("title", "Unknown action")
+            kind = action.get("kind", "unknown")
+            action_descriptions.append(f"{i+1}. {title} (kind: {kind})")
+            
+        return f"Available code actions:\n" + "\n".join(action_descriptions)
+        
+    except Exception as e:
+        await ctx.error(f"Failed to get code actions: {e}")
+        return f"Error: {e}"
+        
+    finally:
+        await lsp_client.stop()
 
 
 @app.command()

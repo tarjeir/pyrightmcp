@@ -11,6 +11,17 @@ dependencies = [
     "pyright>=1.1.401",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.10.0",
+    "pytest-cov>=4.0.0",
+]
+lsp = [
+    "python-lsp-jsonrpc>=1.1.0",
+]
+
 [project.scripts]
 pyrightmcp = "pyrightmcp.main:app"
 
@@ -24,6 +35,12 @@ profile = "black"
 minversion = "7.0"
 addopts = "-ra -q"
 testpaths = ["tests"]
+markers = [
+    "e2e: marks tests as end-to-end (slow, requires real LSP)",
+    "slow: marks tests as slow running",
+    "integration: marks tests as integration tests",
+    "requires_lsp: marks tests that need LSP dependencies"
+]
 
 [build-system]
 requires = ["hatchling"]
