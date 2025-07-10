@@ -3,7 +3,7 @@
 def function_with_errors():
     """Function with various type errors."""
     # Type error: cannot assign int to str
-    name: str = 123
+x: str = "hello"  # Fixed type error
     
     # Type error: undefined variable
     result = undefined_variable + 5

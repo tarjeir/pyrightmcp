@@ -229,15 +229,15 @@ async def get_hover(project_dir: str, file_path: str, line: int, column: int, ct
         project_path = Path(project_dir).resolve()
         client = await get_lsp_client(project_path)
         
-        # Ensure the file is opened in the LSP server
-        await client.did_open(file_path)
-        
-        # Get hover info
+        # Get hover info (document will be opened automatically)
         hover = await client.get_hover(file_path, line, column)
         
         if not hover:
             return "No hover information available"
         
+        # Ensure we return a string
+        if isinstance(hover.contents, list):
+            return "\n".join(hover.contents)
         return hover.contents
         
     except LSPClientError as e:
