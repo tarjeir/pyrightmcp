@@ -426,7 +426,10 @@ class LSPClient:
         # Ensure document is open before making the request
         await self.open_document(file_path)
         
-        params = asdict(create_text_document_position_params(file_path, line, character))
+        params = {
+            "textDocument": asdict(create_text_document_identifier(file_path)),
+            "position": {"line": line, "character": character}
+        }
         result = await self._send_request("textDocument/definition", params)
         
         locations = []
@@ -510,7 +513,10 @@ class LSPClient:
         # Ensure document is open before making the request
         await self.open_document(file_path)
         
-        params = asdict(create_text_document_position_params(file_path, line, character))
+        params = {
+            "textDocument": asdict(create_text_document_identifier(file_path)),
+            "position": {"line": line, "character": character}
+        }
         result = await self._send_request("textDocument/hover", params)
         
         if not result:

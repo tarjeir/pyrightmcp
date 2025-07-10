@@ -119,8 +119,8 @@ async def get_definition(project_dir: str, file_path: str, line: int, column: in
     Args:
         project_dir (str): The absolute path to the root project directory.
         file_path (str): The absolute path to the Python file.
-        line (int): Line number (0-based).
-        column (int): Column number (0-based).
+        line (int): Line number (0-based indexing, where first line is 0).
+        column (int): Column number (0-based indexing, where first column is 0).
         
     Returns:
         str: Information about the symbol definition including file path and location.
@@ -169,8 +169,8 @@ async def get_references(project_dir: str, file_path: str, line: int, column: in
     Args:
         project_dir (str): The absolute path to the root project directory.
         file_path (str): The absolute path to the Python file.
-        line (int): Line number (0-based).
-        column (int): Column number (0-based).
+        line (int): Line number (0-based indexing, where first line is 0).
+        column (int): Column number (0-based indexing, where first column is 0).
         
     Returns:
         str: List of all references to the symbol including file paths and locations.
@@ -219,8 +219,8 @@ async def get_hover(project_dir: str, file_path: str, line: int, column: int, ct
     Args:
         project_dir (str): The absolute path to the root project directory.
         file_path (str): The absolute path to the Python file.
-        line (int): Line number (0-based).
-        column (int): Column number (0-based).
+        line (int): Line number (0-based indexing, where first line is 0).
+        column (int): Column number (0-based indexing, where first column is 0).
         
     Returns:
         str: Hover information including type hints and documentation.
@@ -235,10 +235,32 @@ async def get_hover(project_dir: str, file_path: str, line: int, column: int, ct
         if not hover:
             return "No hover information available"
         
-        # Ensure we return a string
-        if isinstance(hover.contents, list):
-            return "\n".join(hover.contents)
-        return hover.contents
+        # Handle different hover content formats
+        contents = hover.contents
+        if isinstance(contents, dict):
+            # LSP hover contents can be MarkupContent with kind and value
+            if 'value' in contents:
+                return contents['value']
+            elif 'text' in contents:
+                return contents['text']
+            else:
+                return str(contents)
+        elif isinstance(contents, list):
+            # Contents can be a list of strings or MarkupContent objects
+            result = []
+            for item in contents:
+                if isinstance(item, dict):
+                    if 'value' in item:
+                        result.append(item['value'])
+                    elif 'text' in item:
+                        result.append(item['text'])
+                    else:
+                        result.append(str(item))
+                else:
+                    result.append(str(item))
+            return "\n".join(result)
+        else:
+            return str(contents)
         
     except LSPClientError as e:
         await ctx.error(f"LSP client error: {e}")
@@ -308,8 +330,8 @@ async def rename_symbol(project_dir: str, file_path: str, line: int, column: int
     Args:
         project_dir (str): The absolute path to the root project directory.
         file_path (str): The absolute path to the Python file.
-        line (int): Line number (0-based).
-        column (int): Column number (0-based).
+        line (int): Line number (0-based indexing, where first line is 0).
+        column (int): Column number (0-based indexing, where first column is 0).
         new_name (str): The new name for the symbol.
         
     Returns:
@@ -363,10 +385,10 @@ async def get_code_actions(project_dir: str, file_path: str, start_line: int, st
     Args:
         project_dir (str): The absolute path to the root project directory.
         file_path (str): The absolute path to the Python file.
-        start_line (int): Start line number (0-based).
-        start_char (int): Start column number (0-based).
-        end_line (int): End line number (0-based).
-        end_char (int): End column number (0-based).
+        start_line (int): Start line number (0-based indexing, where first line is 0).
+        start_char (int): Start column number (0-based indexing, where first column is 0).
+        end_line (int): End line number (0-based indexing, where first line is 0).
+        end_char (int): End column number (0-based indexing, where first column is 0).
         
     Returns:
         str: List of available code actions.
