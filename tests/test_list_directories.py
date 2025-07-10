@@ -1,7 +1,6 @@
 """Test list_allowed_directories functionality."""
 
 import pytest
-from pathlib import Path
 
 
 @pytest.mark.asyncio

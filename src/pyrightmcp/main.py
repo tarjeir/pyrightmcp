@@ -116,6 +116,9 @@ async def get_definition(project_dir: str, file_path: str, line: int, column: in
     This tool uses the Language Server Protocol to find where a symbol (function, class, variable, etc.)
     is defined in the codebase.
     
+    IMPORTANT: Target the exact symbol name, not the body content. Point to class names, 
+    function names, variable names - not decorators, docstrings, or implementation details.
+    
     Args:
         project_dir (str): The absolute path to the root project directory.
         file_path (str): The absolute path to the Python file.
@@ -165,6 +168,9 @@ async def get_references(project_dir: str, file_path: str, line: int, column: in
     
     This tool uses the Language Server Protocol to find all places where a symbol is used
     throughout the codebase.
+    
+    IMPORTANT: Target the exact symbol name, not the body content. Point to class names, 
+    function names, variable names - not decorators, docstrings, or implementation details.
     
     Args:
         project_dir (str): The absolute path to the root project directory.
@@ -216,6 +222,9 @@ async def get_hover(project_dir: str, file_path: str, line: int, column: int, ct
     This tool uses the Language Server Protocol to get documentation, type information,
     and other details about a symbol when hovering over it.
     
+    IMPORTANT: Target the exact symbol name, not the body content. Point to class names, 
+    function names, variable names - not decorators, docstrings, or implementation details.
+    
     Args:
         project_dir (str): The absolute path to the root project directory.
         file_path (str): The absolute path to the Python file.
@@ -240,9 +249,9 @@ async def get_hover(project_dir: str, file_path: str, line: int, column: int, ct
         if isinstance(contents, dict):
             # LSP hover contents can be MarkupContent with kind and value
             if 'value' in contents:
-                return contents['value']
+                return contents.get('value', '')
             elif 'text' in contents:
-                return contents['text']
+                return contents.get('text', '')
             else:
                 return str(contents)
         elif isinstance(contents, list):
@@ -251,9 +260,9 @@ async def get_hover(project_dir: str, file_path: str, line: int, column: int, ct
             for item in contents:
                 if isinstance(item, dict):
                     if 'value' in item:
-                        result.append(item['value'])
+                        result.append(item.get('value', ''))
                     elif 'text' in item:
-                        result.append(item['text'])
+                        result.append(item.get('text', ''))
                     else:
                         result.append(str(item))
                 else:
@@ -326,6 +335,10 @@ async def rename_symbol(project_dir: str, file_path: str, line: int, column: int
     
     This tool uses the Language Server Protocol to safely rename variables, functions, classes,
     and other symbols while updating all references.
+    
+    CRITICAL: Must target the exact symbol name. Use get_references first to verify what 
+    will be renamed. Point to class names, function names, variable names - not decorators, 
+    docstrings, or implementation details.
     
     Args:
         project_dir (str): The absolute path to the root project directory.

@@ -24,7 +24,6 @@ from pyrightmcp.lsp_types import (
     Position,
     Range,
     create_text_document_identifier,
-    create_text_document_position_params,
 )
 
 logger = logging.getLogger(__name__)
